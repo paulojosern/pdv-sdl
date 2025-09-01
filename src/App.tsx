@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { User, Lock, Mail } from "lucide-react";
 import "./App.css";
 import Panel from "./components/panel";
@@ -70,6 +70,32 @@ const App = () => {
     }, 800);
   };
 
+  const [tipo, setTipo] = useState("");
+  const emailInputRef = useRef<HTMLInputElement>(null); 
+  const passwordInputRef = useRef<HTMLInputElement>(null);
+  const handleTecladoInput = (value: string) => {
+	const newValue = formData[tipo as keyof typeof formData] 
+    setFormData((prev) => ({ ...prev, [tipo]: newValue + value }));
+	console.log(value)
+	if (tipo =="email"){
+		emailInputRef.current?.focus()
+	} else {
+		passwordInputRef.current?.focus()
+	}
+  };
+
+  const handleTecladoClear = () => {
+    setFormData((prev) => ({ ...prev, [tipo]: "" }));
+  };
+
+  const handleTecladoBackspace = () => {
+	const newValue = formData[tipo as keyof typeof formData]
+    setFormData((prev) => ({
+      ...prev,
+      [tipo]:newValue.slice(0, -1),
+    }));
+  };
+
   if (isLoggedIn) {
     return <Panel user={user} removeUser={removeUser} />;
   }
@@ -104,6 +130,8 @@ const App = () => {
                   name="email"
                   value={formData.email}
                   onChange={handleInputChange}
+                  onFocus={() => setTipo("email")}
+				  ref={emailInputRef}
                   placeholder="usuario"
                   className="font-poppins w-full pl-12 pr-4 py-2 border text-lg  text-zinc-200 border-zinc-500 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all focus:outline-none"
                   required
@@ -125,6 +153,8 @@ const App = () => {
                   name="password"
                   value={formData.password}
                   onChange={handleInputChange}
+                  onFocus={() => setTipo("password")}
+				  ref={passwordInputRef}
                   placeholder="Digite sua senha"
                   className="font-poppins w-full pl-12 pr-4 py-2 border text-lg  text-zinc-200 border-zinc-500 rounded-lg  focus:border-transparent transition-all focus:outline-none"
                   required
@@ -146,7 +176,11 @@ const App = () => {
           </div>
         </div>
         <div className="w-full  bg-black rounded-2xl shadow-2xl p-8">
-          <Teclado/>
+          <Teclado
+            onInput={handleTecladoInput}
+            onClear={handleTecladoClear}
+            onBackspace={handleTecladoBackspace}
+          />
         </div>
       </div>
     </div>
