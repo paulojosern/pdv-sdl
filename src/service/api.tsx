@@ -57,7 +57,33 @@ export const apiSevice = {
       console.log(error);
       throw error;
     }
+
   },
+  async getPedidos( id: string) {
+     try {
+        
+        const response = await fetch(
+          url +
+            `/api/sales/Pedido/ListItem?PedidoID=${id}`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization:
+                "Bearer " + localStorage.getItem("token_pdv_soudaliga"),
+            },
+          }
+        );
+        const data = await response.json();
+        
+        return data.pedidoItem;
+      
+    } catch (error) {
+      console.log(error);
+      throw error;
+    }
+  },
+
   LogOut() {
     localStorage.removeItem("token_pdv_soudaliga");
     localStorage.removeItem("id_pdv_soudaliga");
