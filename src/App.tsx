@@ -1,12 +1,14 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { User, Lock, Mail } from "lucide-react";
 import "./App.css";
 import Panel from "./components/panel";
 import Teclado from "./components/teclado";
+import { apiSevice } from "./service/api";
 
 export interface User {
-  name: string;
+  nome: string;
   email: string;
+  accessToken: string;
 }
 
 const App = () => {
@@ -23,6 +25,18 @@ const App = () => {
     setFormData({ email: "", password: "" });
   };
 
+  useEffect(() => {
+    const token = localStorage.getItem("token_pdv_soudaliga");
+    if (token) {
+       apiSevice.getUser().then((response) => {
+        if(response){
+          setUser(response);
+        setIsLoggedIn(true);
+        }
+      });
+    
+    }
+  }, []);
   // Função para validar email básico
   const isValidEmail = (emailPrefix: string) => {
     // Verifica se tem pelo menos 3 caracteres e não contém espaços ou caracteres especiais inválidos
@@ -42,7 +56,7 @@ const App = () => {
     }
   };
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
 
     // Validações básicas
@@ -56,32 +70,33 @@ const App = () => {
       return;
     }
 
-    // Simulando autenticação
-    setIsAnimating(true);
+    const response = await apiSevice.Login(formData.email+"@soudaliga.com.br", formData.password);
+    if (response) {
+      setIsAnimating(true);
 
-    setTimeout(() => {
-      const fullEmail = `${formData.email}@soudaliga.com.br`;
-      setUser({
-        name: "João Silva",
-        email: fullEmail,
-      });
-      setIsLoggedIn(true);
-      setIsAnimating(false);
-    }, 800);
+      setTimeout(() => {
+        setUser(response);
+        setIsLoggedIn(true);
+        setIsAnimating(false);
+      }, 800);
+    }
+    // Simulando autenticação
   };
 
+
+
   const [tipo, setTipo] = useState("");
-  const emailInputRef = useRef<HTMLInputElement>(null); 
+  const emailInputRef = useRef<HTMLInputElement>(null);
   const passwordInputRef = useRef<HTMLInputElement>(null);
   const handleTecladoInput = (value: string) => {
-	const newValue = formData[tipo as keyof typeof formData] 
+    const newValue = formData[tipo as keyof typeof formData];
     setFormData((prev) => ({ ...prev, [tipo]: newValue + value }));
-	console.log(value)
-	if (tipo =="email"){
-		emailInputRef.current?.focus()
-	} else {
-		passwordInputRef.current?.focus()
-	}
+    console.log(value);
+    if (tipo == "email") {
+      emailInputRef.current?.focus();
+    } else {
+      passwordInputRef.current?.focus();
+    }
   };
 
   const handleTecladoClear = () => {
@@ -89,10 +104,10 @@ const App = () => {
   };
 
   const handleTecladoBackspace = () => {
-	const newValue = formData[tipo as keyof typeof formData]
+    const newValue = formData[tipo as keyof typeof formData];
     setFormData((prev) => ({
       ...prev,
-      [tipo]:newValue.slice(0, -1),
+      [tipo]: newValue.slice(0, -1),
     }));
   };
 
@@ -131,7 +146,7 @@ const App = () => {
                   value={formData.email}
                   onChange={handleInputChange}
                   onFocus={() => setTipo("email")}
-				  ref={emailInputRef}
+                  ref={emailInputRef}
                   placeholder="usuario"
                   className="font-poppins w-full pl-12 pr-4 py-2 border text-lg  text-zinc-200 border-zinc-500 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all focus:outline-none"
                   required
@@ -154,7 +169,7 @@ const App = () => {
                   value={formData.password}
                   onChange={handleInputChange}
                   onFocus={() => setTipo("password")}
-				  ref={passwordInputRef}
+                  ref={passwordInputRef}
                   placeholder="Digite sua senha"
                   className="font-poppins w-full pl-12 pr-4 py-2 border text-lg  text-zinc-200 border-zinc-500 rounded-lg  focus:border-transparent transition-all focus:outline-none"
                   required

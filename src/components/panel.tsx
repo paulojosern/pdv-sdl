@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Home, LogOut } from 'lucide-react';
 import '../App.css';
 import type { User } from '../App';
+import { apiSevice } from '../service/api';
 
 interface Props {
 	user: User | null;
@@ -12,6 +13,7 @@ const Panel = ({ user, removeUser }: Props) => {
 	const [isAnimating, setIsAnimating] = useState(false);
 
 	const handleLogout = () => {
+		apiSevice.LogOut();
 		setIsAnimating(true);
 
 		setTimeout(() => {
@@ -58,7 +60,7 @@ const Panel = ({ user, removeUser }: Props) => {
 					<div className="space-y-3">
 						<div className="flex items-center space-x-3">
 							<span className="text-gray-700">
-								<strong>Nome:</strong> {user?.name}
+								<strong>Nome:</strong> {user?.nome}
 							</span>
 						</div>
 						<div className="flex items-center space-x-3">
